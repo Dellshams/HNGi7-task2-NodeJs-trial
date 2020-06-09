@@ -1,0 +1,2 @@
+const [fullName, id, email, lang] = ['Abdullah Zakariyya Opeyemi', 'HNG-03146', 'zakariyyaopeyemi@gmail.com', 'Javascript'];
+console.log(`Hello World, this is ${fullName} with HNGi7 ID ${id} and email ${email} using ${lang} for stage 2 task`);
