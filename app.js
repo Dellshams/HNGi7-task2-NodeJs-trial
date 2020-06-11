@@ -62,7 +62,7 @@ app.get('/', cacheMiddleware, (req, res) => {
                console.log(`child process have an error with code ${code}`);
             })
             py.on('exit', () => {
-               //console.log('foobar exiting: ', dat)               
+               //console.log('foobar exiting: ', dat)
             })
          } catch (err) {
             console.log(`${err}`)
