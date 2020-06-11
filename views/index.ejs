@@ -1,500 +1,530 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <style media="screen">
-    body {
-      font-family: lato;
-      background: #eee;
-      margin: 0;
-      padding: 0;
-    }
 
-    #scroll-to {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      width: 40px;
-      height: 40px;
-      background: blue;
-      transition: all 0.5s linear;
-    }
-
-    #scroll-to span {
-      display: inline-block;
-      position: relative;
-      width: 100%;
-      height: 100%;
-    }
-
-    #scroll-to span::before,
-    #scroll-to span::after {
-      content: "";
-      position: absolute;
-
-    }
-
-    #scroll-to span::after {
-      width: 2px;
-      height: 20px;
-      background: #fff;
-      top: 12px;
-      left: 19.5px;
-
-    }
-
-    #scroll-to span::before {
-      width: 7px;
-      height: 7px;
-      border-top: 2px solid #fff;
-      border-left: 2px solid #fff;
-      transform: rotate(45deg);
-      left: 16px;
-      top: 11px;
-    }
-
-    .show-scrollTo {
-      opacity: 1;
-      /* display: block; */
-    }
-
-    .hide-scrollTo {
-      opacity: 0;
-      /* display: none; */
-
-    }
-
-    #scroll-to:hover {
-      transform: translateY(-5px);
-    }
-
-    .hidebar {
-      display: none;
-    }
-
-    .showbar {
-      display: flex;
-    }
-
-    .chart {
-      display: flex;
-      justify-content: center;
-      flex-direction: column;
-      position: fixed;
-      top: 70px;
-      right: 5px;
-    }
-
-    .breakdown {
-      background: black;
-      color: #fff;
-      padding: 10px;
-      border-radius: 20px 6px 20px 6px;
-      width: 150px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      opacity: 0;
-      animation-name: magicslide;
-      animation-fill-mode: forwards;
-      animation-duration: 1s;
-    }
-
-    .breakdown~span {
-      animation-name: magicslide;
-      animation-fill-mode: forwards;
-      animation-duration: 1s;
-      animation-delay: 0.5s;
-      opacity: 0;
-      margin-bottom: 10px;
-    }
-
-    .chart-desc {
-      position: relative;
-      margin-left: 20px;
-      margin-top: 5px;
-      transform: translateY(20px);
-    }
-
-    .chart-desc::before {
-      content: "";
-      position: absolute;
-      left: -20px;
-      top: 1px;
-      width: 15px;
-      height: 15px;
-      border-radius: 2px;
-      background: black;
-    }
-
-    .bar-div+p.chart-desc::before {
-      background: #24a824;
-    }
-
-    .bar-div+p.chart-desc+p.chart-desc::before {
-      background: #e02727;
-    }
-
-
-
-    .titans {
-      left: 0;
-      right: 0;
-      top: 0;
-      height: 50px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 5px;
-      background-color: #000;
-      /* background: linear-gradient(to right, rgb(0, 4, 40), rgb(0, 78, 146)); */
-      color: #fff;
-      font-size: 1.8rem;
-      font-weight: bold;
-      position: fixed;
-      font-family: monospace;
-      box-shadow: 0 2px 5px #ddd;
-      z-index: 10;
-    }
-
-    .titans p span:nth-of-type(1) {
-      color: blue;
-      margin-left: 2px;
-    }
-
-    .titans p {
-      width: 200px;
-      position: relative;
-      text-transform: uppercase;
-    }
-
-    .titans p::after {
-      content: "";
-      position: absolute;
-      bottom: -5px;
-      height: 4px;
-      width: 50px;
-      right: 45px;
-      background-color: blue;
-    }
-
-    .container {
-      display: flex;
-      justify-content: space-between;
-      flex-flow: row wrap-reverse;
-      /* min-height: 100vh; */
-      margin-bottom: 60px;
-      margin-top: 60px;
-    }
-
-    .bar-div {
-      width: 220px;
-      height: 250px;
-      display: flex;
-      justify-content: space-between;
-      text-align: center;
-      position: relative;
-      border-left: 2px solid #ccc;
-      border-bottom: 2px solid #ccc;
-      margin-right: 20px;
-      /* margin-top: 50px; */
-      background-image: url('https://i.ya-webdesign.com/images/graph-paper-background-png-4.png');
-      background-position: center;
-      /* background-repeat: no-repeat; */
-      background-size: contain;
-    }
-
-    .bar-pass,
-    .bar-fail {
-      position: absolute;
-      bottom: 0;
-      width: 40px;
-      color: black;
-      font-size: 0.9rem;
-      font-weight: bold;
-      /* display: flex; */
-      justify-content: center;
-      align-items: flex-start;
-      padding: 5px;
-    }
-
-    .bar-div p {
-      transform: translate(-7px, -35px);
-    }
-
-
-    .bar-pass {
-      border-top: 6px solid #9ff691;
-      border-left: 16px solid #006800;
-      background: #24a824;
-      left: 35px;
-      opacity: 0;
-      animation-name: magicht;
-      animation-fill-mode: forwards;
-      animation-duration: 1s;
-    }
-
-    .bar-fail {
-      border-top: 6px solid #f08c8c;
-      border-left: 16px solid #9d0303;
-      background: #e02727;
-      left: 130px;
-      opacity: 0;
-      animation-name: magicht;
-      animation-fill-mode: forwards;
-      animation-duration: 1s;
-      animation-delay: 0.5s;
-      padding: 5px;
-    }
-
-    tr.divider td {
-      height: 7px;
-      padding: 0;
-    }
-
-    tr.whoiam {
-      height: 50px;
-      transition: all 0.5s ease-in 0.1s;
-      color: #fff;
-      opacity: 0;
-      animation-name: magicrow;
-      animation-fill-mode: forwards;
-      animation-duration: 0.5s;
-      /* border-top: 5px solid #eee; */
-    }
-
-    table {
-      /* box-shadow:0 0 8px #ccc; */
-      border-radius: 6px;
-      display: relative;
-      background-color: #eee;
-      width: 80vw;
-      min-width: 80vw;
-      padding: 10px;
-    }
-
-    tr.whoiam td {
-      word-wrap: break-word;
-    }
-
-    tr td {
-      border-radius: 20px 6px 20px 6px;
-      padding: 15px;
-    }
-
-    tr.whoiam td:nth-of-type(2) {
-      width: 150px;
-      max-width: 200px;
-    }
-
-    tr th:nth-of-type(1) {
-      border-radius: 5px 0 0 0;
-    }
-
-    tr th:nth-of-type(4) {
-      border-radius: 0 5px 0 0;
-    }
-
-
-    tr.whoiam:hover {
-      transform: scale(1.005);
-    }
-
-    tr th {
-      background-color: black;
-      color: #fff;
-      padding: 10px;
-      font-size: 1.1rem;
-    }
-
-    .fail {
-      background-color: #e02727c9;
-    }
-
-    tr.whoiam td {
-      position: relative;
-      font-size: 0.9rem;
-      font-weight: bold;
-    }
-
-    .pass {
-      background-color: #24a824c2;
-    }
-
-    .error-div {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      flex-direction: column;
-
-    }
-
-    .error,
-    .error-num {
-      color: #ccc;
-    }
-
-    .error {
-      display: inline-block;
-      margin-top: -200px;
-      font-size: 1.5rem;
-    }
-
-    .error-num {
-      font-size: 10.5rem;
-      font-weight: 700;
-    }
-
-    tr.whoiam td:hover {
-      /* background-color: #e91e63; */
-      box-shadow: 0 5px 15px #ccc;
-    }
-
-    @keyframes magicrow {
-      0% {
-        opacity: 0;
-        transform: scale(0.9);
-      }
-
-      50% {
-        opacity: 1;
-        transform: scale(1.005);
-      }
-
-      100% {
-        opacity: 1;
-        transform: scale(1);
-      }
-    }
-
-    @keyframes magicht {
-      0% {
-        opacity: 0;
-        height: 0;
-      }
-
-      50% {
-        opacity: 1;
-        height: 10px;
-      }
-
-      100% {
-        opacity: 1;
-      }
-    }
-
-
-    @keyframes magicslide {
-      0% {
-        opacity: 0;
-        transform: translateX(30px);
-      }
-
-      50% {
-        opacity: 1;
-        transform: translateX(10px);
-      }
-
-      100% {
-        opacity: 1;
-        transform: translateX(0);
-      }
-    }
-  </style>
-</head>
-
-<body>
-  <div class='titans'>
-    <p>Team<span>-</span>Titans</p>
-    <h6>Built with love using nodeJs</h6>
-  </div>
-  <div class='container' id='header'>
-    <table class="main">
-      <tr>
-        <th>#</th>
-        <th>Full Name</th>
-        <th>Infomation</th>
-        <th>Status</th>
-      </tr>
-      <tr class='divider'>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-      </tr>
-      <%for(let i=0; i<da.length; i++) {%>
-      <tr class='whoiam  pass' style='animation-delay: <%=(i+1)/7%>s'>
-        <% if (da[i].status === 'fail') { %>
-          <td style='background-color: #e35252;'><%=i+1%></td>
-          <td style='background-color: #e35252;'><%=da[i].name%></td>
-          <td style='background-color: #e35252;'><%=da[i].output%></td>
-          <td style='background-color: #e35252;'><%=da[i].status%></td>
-          <% } %>
-        <% if (da[i].status === 'pass') { %>
-          <td><%=i+1%></td>
-          <td><%=da[i].name%></td>
-          <td><%=da[i].output%></td>
-          <td><%=da[i].status%></td>
-        <% } %>
-      </tr>
-      <tr class='divider'>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-      </tr>
-      <%}%>
-    </table>
-    <div class='chart'>
-      <p class='breakdown'>Total <%=da.length%> </p>
-      <span>
-          Pass : <%=pa%>
-      </span>
-      <span>Fail : <%=fa%>
-      </span>
-      <div class='bar-div'>
-        <div class='bar-pass' style='height: <%=pap%>%'>
-          <p><%=pap%>%</p>
-        </div>
-        <div class='bar-fail' style='height: <%=fap%>%'>
-          <p><%=fap%>%</p>
-        </div>
-      </div>
-      <p class='chart-desc'> Percentage of passes</p>
-      <p class='chart-desc'> Percentage of fails</p>
-    </div>
-  </div>
-  <div id='scroll-to' class='hide-scrollTo'><span></span></div>
-  </div>
-
-  <script type="text/javascript">
-
-    let scrollTo = document.getElementById('scroll-to');
-
-
-    scrollTo.addEventListener('click', (e) => {
-      scrollToMe('header');
-    });
-
-    function scrollToMe(id) {
-
-      document.getElementById(id).scrollIntoView({
-        behavior: 'smooth'
-      });
-
-    }
-
-    window.onscroll = function () { myFunction() };
-    window.onload = function () { myFunction() };
-
-    function myFunction() {
-      if (document.body.scrollTop > 70 || document.documentElement.scrollTop > 70) {
-        scrollTo.className = "show-scrollTo";
-      } else {
-        scrollTo.className = "hide-scrollTo";
-      }
-    }
-
-
-  </script>
-</body>
-</html>
+    <html lang="en">
+
+      <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Team Fierce HNGi7 Task</title>
+          <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,600;0,700;0,800;1,300;1,400;1,600;1,700;1,800&display=swap" />
+          <style>
+              * {
+                  margin: 0;
+                  padding: 0;
+                  font-family: 'Open Sans', sans-serif;
+              }
+  
+              a {
+                  text-decoration: none;
+              }
+  
+              body {
+                  background-color: #F9F9FA;
+              }
+  
+              header {
+                  background: #ffffff;
+                  padding: 1.2rem 0 1.3rem;
+                  margin-bottom: 2rem;
+              }
+  
+              header nav {
+                  max-width: 1440px;
+                  margin: 0 auto;
+                  padding: 0 5rem;
+                  display: -webkit-box;
+                  display: -ms-flexbox;
+                  display: flex;
+                  -webkit-box-pack: justify;
+                  -ms-flex-pack: justify;
+                  justify-content: space-between;
+                  -webkit-box-align: center;
+                  -ms-flex-align: center;
+                  align-items: center;
+              }
+  
+              @media screen and (max-width: 634px) {
+                  header nav {
+                      padding: 0 2rem;
+                  }
+              }
+  
+              @media screen and (max-width: 234px) {
+                  header nav {
+                      padding: 0 1rem;
+                  }
+              }
+  
+              header nav a {
+                  font-weight: 600;
+                  font-size: 1.125rem;
+                  line-height: 25px;
+                  color: #333333;
+                  text-transform: uppercase;
+              }
+  
+              header nav input {
+                  min-width: 417px;
+                  outline: none;
+                  border: 1px solid #828282;
+                  border-radius: 4px;
+                  padding: 9px 2rem 9px 2.3rem;
+                  background-image: url("https://res.cloudinary.com/theonlybakare/image/upload/v1591189231/search_kwamya.svg");
+                  background-repeat: no-repeat;
+                  background-position: top 9px left 12px;
+              }
+  
+              @media screen and (max-width: 726px) {
+                  header nav input {
+                      min-width: 217px;
+                  }
+              }
+  
+              @media screen and (max-width: 428px) {
+                  header nav input {
+                      display: none;
+                  }
+              }
+  
+              .contents {
+                  max-width: 1400px;
+                  margin: 2rem auto 0;
+                  padding: 0 80px;
+              }
+  
+              @media screen and (max-width: 634px) {
+                  .contents {
+                      padding: 0 2rem;
+                  }
+              }
+  
+              @media screen and (max-width: 536px) {
+                  .contents {
+                      padding: 0 2rem;
+                  }
+              }
+  
+              @media screen and (max-width: 234px) {
+                  .contents {
+                      padding: 0 1rem;
+                  }
+              }
+  
+              .contents .top-row {
+                  background-color: #FFFFFF;
+                  display: -webkit-box;
+                  display: -ms-flexbox;
+                  display: flex;
+                  -webkit-box-pack: space-evenly;
+                  -ms-flex-pack: space-evenly;
+                  justify-content: space-evenly;
+                  -webkit-box-align: center;
+                  -ms-flex-align: center;
+                  align-items: center;
+                  padding: 30px 0;
+              }
+  
+              @media screen and (max-width: 536px) {
+                  .contents .top-row {
+                      -webkit-box-orient: vertical;
+                      -webkit-box-direction: normal;
+                      -ms-flex-direction: column;
+                      flex-direction: column;
+                      -webkit-box-align: start;
+                      -ms-flex-align: start;
+                      align-items: flex-start;
+                      padding: 1rem 1rem 0;
+                  }
+  
+                  .contents .top-row p {
+                      margin-bottom: 1rem;
+                      display: -webkit-box;
+                      display: -ms-flexbox;
+                      display: flex;
+                      -webkit-box-pack: justify;
+                      -ms-flex-pack: justify;
+                      justify-content: space-between;
+                      width: 100%;
+                  }
+  
+                  .contents .top-row p span {
+                      margin-left: 0 !important;
+                  }
+              }
+  
+              .contents .top-row p {
+                  font-size: 14px;
+                  line-height: 19px;
+                  color: #BDBDBD;
+                  text-transform: uppercase;
+              }
+  
+              .contents .top-row p span {
+                  display: inline-block;
+                  margin-left: 1rem;
+                  font-weight: bold;
+                  color: #2F80ED;
+              }
+  
+              .contents .top-row .pass span {
+                  color: #27AE60;
+              }
+  
+              .contents .top-row .fail span {
+                  color: #EB5757;
+              }
+  
+              .contents .log {
+                  background: #FFFFFF;
+                  margin-top: 1.5rem;
+                  padding: 1.5rem 2rem 1.75rem;
+                  border-bottom: 1px solid #E5E5E5;
+              }
+  
+              .contents .log h2 {
+                  text-transform: uppercase;
+                  font-size: 1.125rem;
+                  line-height: 25px;
+                  color: #333333;
+              }
+  
+              .contents .log .lead-wrapper {
+                  margin-top: 30px;
+                  display: -webkit-box;
+                  display: -ms-flexbox;
+                  display: flex;
+                  -webkit-box-align: center;
+                  -ms-flex-align: center;
+                  align-items: center;
+              }
+  
+              @media screen and (max-width: 864px) {
+                  .contents .log .lead-wrapper {
+                      -webkit-box-orient: vertical;
+                      -webkit-box-direction: normal;
+                      -ms-flex-direction: column;
+                      flex-direction: column;
+                      -webkit-box-align: start;
+                      -ms-flex-align: start;
+                      align-items: flex-start;
+                  }
+  
+                  .contents .log .lead-wrapper div {
+                      -webkit-box-pack: justify;
+                      -ms-flex-pack: justify;
+                      justify-content: space-between;
+                  }
+              }
+  
+              .contents .log .lead-wrapper p {
+                  font-size: 14px;
+                  line-height: 19px;
+                  color: #333333;
+                  min-width: 77px;
+              }
+  
+              .contents .log .lead-wrapper .lead {
+                  color: #2F80ED;
+              }
+  
+              .contents .log .lead-wrapper div {
+                  width: 100%;
+                  display: -webkit-box;
+                  display: -ms-flexbox;
+                  display: flex;
+                  -webkit-box-pack: space-evenly;
+                  -ms-flex-pack: space-evenly;
+                  justify-content: space-evenly;
+              }
+  
+              @media screen and (max-width: 864px) {
+                  .contents .log .lead-wrapper div {
+                      margin-top: 1rem;
+                      -webkit-box-pack: justify;
+                      -ms-flex-pack: justify;
+                      justify-content: space-between;
+                  }
+              }
+  
+              @media screen and (max-width: 720px) {
+                  .contents .log .lead-wrapper div {
+                      -webkit-box-orient: vertical;
+                      -webkit-box-direction: normal;
+                      -ms-flex-direction: column;
+                      flex-direction: column;
+                  }
+  
+                  .contents .log .lead-wrapper div p {
+                      margin-top: 1rem;
+                      display: -webkit-box;
+                      display: -ms-flexbox;
+                      display: flex;
+                      -webkit-box-pack: justify;
+                      -ms-flex-pack: justify;
+                      justify-content: space-between;
+                      -webkit-box-align: center;
+                      -ms-flex-align: center;
+                      align-items: center;
+                  }
+  
+                  .contents .log .lead-wrapper div p span {
+                      margin: 0;
+                  }
+              }
+  
+              .contents .log .lead-wrapper div p span {
+                  font-weight: bold;
+                  margin-left: 1rem;
+              }
+  
+              .contents .table-wrapper {
+                  position: relative;
+                  width: 100%;
+                  height: 600px;
+                  overflow-y: scroll;
+                  margin-bottom: 60px;
+              }
+  
+              .contents .table-wrapper::-webkit-scrollbar {
+                  width: 4px;
+                  background-color: transparent;
+              }
+  
+              .contents .table-wrapper::-webkit-scrollbar-thumb {
+                  width: 4px;
+                  background-color: #E0E0E0;
+                  border-radius: 5px;
+              }
+  
+              .contents table {
+                  width: 100%;
+                  border-collapse: collapse;
+              }
+  
+              @media screen and (max-width: 1162px) {
+                  .contents table {
+                      width: 110%;
+                  }
+              }
+  
+              @media screen and (max-width: 1040px) {
+                  .contents table {
+                      width: 125%;
+                  }
+              }
+  
+              @media screen and (max-width: 884px) {
+                  .contents table {
+                      width: 150%;
+                  }
+              }
+  
+              @media screen and (max-width: 804px) {
+                  .contents table {
+                      width: 170%;
+                  }
+              }
+  
+              @media screen and (max-width: 548px) {
+                  .contents table {
+                      width: 200%;
+                  }
+              }
+  
+              @media screen and (max-width: 482px) {
+                  .contents table {
+                      width: 240%;
+                  }
+              }
+  
+              @media screen and (max-width: 410px) {
+                  .contents table {
+                      width: 280%;
+                  }
+              }
+  
+              @media screen and (max-width: 372px) {
+                  .contents table {
+                      width: 330%;
+                  }
+              }
+  
+              .contents table tr {
+                  background: #ffffff;
+                  text-align: left;
+              }
+  
+              .contents table tr th:first-child {
+                  padding-left: 2rem;
+              }
+  
+              .contents table tr th:last-child {
+                  padding-right: 2rem;
+              }
+  
+              .contents table tr th {
+                  background: #ffffff;
+                  padding: 1.5rem 0;
+                  position: -webkit-sticky;
+                  position: sticky;
+                  top: 0;
+              }
+  
+              .contents table tbody {
+                  background-color: #FFFFFF;
+              }
+  
+              .contents table tbody tr td {
+                  padding-bottom: 31px;
+                  font-size: 14px;
+                  line-height: 19px;
+                  color: #333333;
+              }
+  
+              .contents table tbody tr td.b {
+                  background-color: #F9F9FA;
+                  padding: 0;
+              }
+  
+              .contents table tbody tr .sn {
+                  padding-left: 2rem;
+                  max-width: 68px;
+              }
+  
+              .contents table tbody tr .id {
+                  max-width: 196px;
+              }
+  
+              .contents table tbody tr .name {
+                  max-width: 181px;
+              }
+  
+              .contents table tbody tr .message {
+                  max-width: 400px;
+              }
+  
+              .contents table tbody tr .status span {
+                  display: inline-block;
+                  border-radius: 4px;
+                  padding: 6px 0;
+                  color: white;
+                  font-weight: 600;
+                  min-width: 92px;
+                  text-align: center;
+              }
+  
+              .contents table tbody tr .status .pass {
+                  background-color: #27AE60;
+              }
+  
+              .contents table tbody tr .status .fail {
+                  background-color: #EB5757;
+              }
+  
+              /* hidden class */
+              .hidden {
+                  display: none;
+              }
+          </style>
+      </head>
+  
+      <body>
+          <header>
+              <nav>
+                  <a href="#">team fierce</a>
+  
+                  <input type="text" id="input" onkeyup="filter()" placeholder="Search" />
+              </nav>
+          </header>
+  
+          <section class="content-wrapper">
+              <div class="contents">
+                                  <div class="top-row">
+                      <p>submitted: <span><%=da.length%></span></p>
+                      <p class="pass">pass: <span><%=pa%></span></p>
+                      <p class="fail">fail: <span><%=fa%></span></p>
+                  </div>
+  
+                  <div class="log">
+                      <h2>logs</h2>
+  
+                      <div class="lead-wrapper">
+                          <p class="lead">Team leads</p>
+                          <div>
+                              <p>Backend: <span>@ojchris</span></p>
+                              <p>Frontend: <span>@JoelEkpenyong</span></p>
+                              <p>Devops: <span>@ayodeji</span></p>
+                          </div>
+                      </div>
+                  </div>
+  
+                  <div class="table-wrapper">
+                      <table id="theTable">
+                          <tr class="header">
+                              <th>SN</th>
+                              <th>Intern ID</th>
+                              <th>Intern Name</th>
+                              <th>Message</th>
+                              <th>Status</th>
+                          </tr>
+  
+                          <tbody>
+                            <%for(let i = 0; i<da.length; i++){%>
+                              <tr>
+                                <td class="sn"><%=i+1%></td>
+                                <td class="id"><%=da[i].id%></td>
+                                <td class="name"><%=da[i].name%></td>
+                                <td class="message"><%=da[i].output%></td>
+                                <%if(da[i].status === "fail"){%>
+                                <td class="status"><span class=fail><%=da[i].status%></span></td>
+                                <%}%>
+                                <%if(da[i].status === "pass"){%>
+                                  <td class="status"><span class=pass><%=da[i].status%></span></td>
+                                  <%}%>
+                              </tr>
+                            <%}%>
+                          </tbody>
+                      </table>
+                  </div>
+              </div>
+          </section>
+          <script>
+              // console.log("hey")
+              let table = document.getElementById("theTable");
+              let rows = Array.prototype.slice.call(table.querySelectorAll("tr:not(.header)"));
+  
+              function filter() {
+                  // Always trim user input
+                  let filter = input.value.trim().toUpperCase();
+  
+                  // Loop the rows
+                  rows.forEach(function(row) {
+  
+                      // You really don't need to know if the search criteria
+                      // is in the first or second cell. You only need to know
+                      // if it is in the row.
+                      var data = "";
+                      // Loop over all the cells in the current row and concatenate their text
+                      Array.prototype.slice.call(row.getElementsByTagName("td")).forEach(function(r) {
+  
+                          data += r.textContent;
+                      });
+  
+                      // Check the string for a match and show/hide row as needed
+                      // Don't set individual styles. Add/remove classes instead
+                      if (data.toUpperCase().indexOf(filter) > -1) {
+                          // show row
+                          row.classList.remove("hidden");
+                      } else {
+                          // hide row
+                          row.classList.add("hidden");
+                      }
+                  });
+  
+              }
+  
+              document.addEventListener("DOMContentLoaded", filter);
+          </script>
+      </body>
+  
+      </html>
+  

@@ -15,7 +15,7 @@ app.set('view engine', 'ejs');
 
 const readdir = promisify(fs.readdir);
 
-app.get('/', cacheMiddleware, (req, res) => {
+app.get('/', (req, res) => {
    (async function doStuff() {
       const dir = path.join(__dirname + '/' + 'scripts');
       const files = await readdir(dir)
@@ -38,25 +38,45 @@ app.get('/', cacheMiddleware, (req, res) => {
             py.stdout.on('data', function (data) {
                //console.log('Pipe data from python file ...');
                str = data.toString('utf8');
-               const res = str.split(' ');
-               const language = `${res[14]}`
+               mes = str.trim();
+               const res = mes.split(' ');
+               let language = ''
+               if (res.length === 20){
+                   language = `${res[15]}`
+               }else{
+                  language = `${res[14]}`
+              }
+
                let status;
                if (language == 'javascript' || language == 'JavaScript'|| language == 'Javascript' || language == 'javaScript'
-               || language == 'python'|| language == 'Python' || language == 'php' || language == 'PHP' || language == 'nodejs' 
+               || language == 'python'|| language == 'Python' || language == 'Python3' || language == 'php' || language == 'PHP' || language == 'nodejs'
                || language == 'NodeJs' || language == 'nodeJs' || language == 'Golang') {
                   status = 'pass'
                } else {
                   status = 'fail'
                }
-               dat.push({
-                  file: path.basename(file),
-                  output: str,
-                  name: `${res[4]} ${res[5]}`,
-                  id: `${res[9]}`,
-                  email: `${res[12]}`,
-                  language: `${res[14]}`,
-                  status: status
-               })
+               if (res.length === 20){
+                  dat.push({
+                     file: path.basename(file),
+                     output: str,
+                     name: `${res[4]} ${res[5]} ${res[6]}`,
+                     id: `${res[10]}`,
+                     email: `${res[13]}`,
+                     language: `${res[15]}`,
+                     status: status
+                  })
+               }
+               if (res.length === 19){
+                  dat.push({
+                     file: path.basename(file),
+                     output: str,
+                     name: `${res[4]} ${res[5]}`,
+                     id: `${res[9]}`,
+                     email: `${res[12]}`,
+                     language: `${res[14]}`,
+                     status: status
+                  })
+               }
             });
             py.stderr.on('data', (code) => {
                console.log(`child process have an error with code ${code}`);
@@ -69,6 +89,7 @@ app.get('/', cacheMiddleware, (req, res) => {
          }
       }
       py.stdout.on('end', () => {
+         debug(dat[3].output)
          //console.log('foobar ending: ', dat)
          let pass = 0
          let fail = 0
@@ -80,12 +101,8 @@ app.get('/', cacheMiddleware, (req, res) => {
                fail = fail+ 1
             }
          }
-         let passPercentage = (pass/dat.length) * 100
-         passPercentage = passPercentage.toFixed(2)
-         let failPercentage = (fail/dat.length) * 100
-         failPercentage = failPercentage.toFixed(2)
 
-         res.render('index', {da: dat, pa: pass, fa: fail, pap: passPercentage, fap: failPercentage})
+         res.render('index', {da: dat, pa: pass, fa: fail})
       })
    })();
 });
